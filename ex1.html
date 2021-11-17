@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>지도 생성하기</title>
+
+</head>
+<body>
+<!-- 지도를 표시할 div 입니다 -->
+<div id="map" style="width:100vw;height:50vh;"></div>
+<div id = "result"></div>
+
+<style>
+
+    .menuDiv  {
+        display:flex;
+        margin:50px;
+        justify-content: space-between;
+    }
+
+
+
+
+    .menuDiv > a { /* 메뉴 div안 a태그 이런 스타일 줄것 */
+        text-decoration: none;
+        background-color: blue;
+        color:white;
+        font-size: large;
+        border-radius: 3px;
+        padding: 3px;
+    }
+
+    /*. {*/
+    /*    background-color: red;*/
+    /*    color: yellow;*/
+    /*}*/
+
+</style>
+
+
+<div class="menuDiv">
+<!--    /* a태그 각각이 아니라 menuDiv에 태그! */-->
+    <a href="전체">전체</a>
+    <a href="분식">분식</a>
+    <a href="카레">카레</a>
+
+
+</div>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1b3bc408e920ccc5d2a1d98a2bb47f19"></script>
+<script>
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(37.499400376767696, 127.02900540862736), // 지도의 중심좌표
+            level: 4 // 지도의 확대 레벨
+        }; //객체 리터럴
+
+    // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+</script>
+
+<script>
+
+    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+
+        // 클릭한 위도, 경도 정보를 가져옵니다
+        var latlng = mouseEvent.latLng;
+
+        var message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, ';
+        message += '경도는 ' + latlng.getLng() + ' 입니다';
+
+        var resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = message;
+
+    });
+
+    const markerArr=[]
+
+    // 배열을 넣어주면 마커 찍어주는 함수
+
+    function showMarkers(stores) {
+
+        //기존 마커들은 지워야 함
+        for (let i = 0; i < markerArr.length; i++) {
+            markerArr[i].setMap(null)
+        }
+
+        for (let i = 0; i < stores.length; i++) {
+            const store = stores[i]
+            const latLng = new kakao.maps.LatLng(store.lat, store.lng);
+            const marker = new kakao.maps.Marker({
+                map: map,
+                position: latLng,
+                title: store.name
+            });
+            markerArr.push(marker)
+
+        }//end for
+
+    }
+
+    const arr = [
+        {name:'애플하우스', lat:37.501857 , lng:126.990053 ,menu:'분식' },
+        {name:'또보겠지떡볶이' , lat:37.559160 , lng:126.924464 ,menu:'분식' },
+        {name:'엽기떡볶이' , lat:37.566805 , lng:127.0158376 ,menu:'분식' },
+        {name:'모꼬지에' , lat:37.500602 , lng:127.1122583 ,menu:'분식' },
+        {name:'타지팰리스', lat:37.544507 , lng:126.991511 ,menu:'카레' },
+        {name:'죠티' , lat:37.555044 , lng:126.937929 ,menu:'카레' },
+        {name:'예티' , lat:37.565563 , lng:126.923378 ,menu:'카레' },
+    ]
+
+    document.querySelector(".menuDiv").addEventListener("click", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const target = e.target
+        //실제로 이벤트가 발생한 애가 타겟
+
+        if(target.tagName !== 'A'){
+            return
+        }
+        console.log('A태그 클릭')
+        const keyword = target.getAttribute("href")
+        // 속성값을 가져옴
+
+        if( keyword !== '전체') {
+            const result = arr.filter(s =>s.menu === keyword)
+
+            showMarkers(result)
+        }else {
+            showMarkers(arr)
+        }
+
+
+
+    },false)
+
+    showMarkers(arr)
+
+// 위처럼 데이터를 가져온 후 마커 뿌려주는 함수 선언
+
+
+</script>
+
+
+</body>
+</html>
